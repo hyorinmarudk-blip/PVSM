@@ -1,50 +1,50 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+import AppShell from "./layouts/AppShell";
+import DashboardPage from "./pages/DashboardPage";
+import CustomersPage from "./pages/CustomersPage";
+import ServicePage from "./pages/ServicePage";
+import SchedulingPage from "./pages/SchedulingPage";
+import PartsPage from "./pages/PartsPage";
+import ReportsPage from "./pages/ReportsPage";
+import SettingsPage from "./pages/SettingsPage";
+import "./styles/app.css";
+
+export type AppPage =
+  | "dashboard"
+  | "customers"
+  | "service"
+  | "scheduling"
+  | "parts"
+  | "reports"
+  | "settings";
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const [activePage, setActivePage] = useState<AppPage>("dashboard");
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
-  }
+  const renderPage = () => {
+    switch (activePage) {
+      case "customers":
+        return <CustomersPage />;
+      case "service":
+        return <ServicePage />;
+      case "scheduling":
+        return <SchedulingPage />;
+      case "parts":
+        return <PartsPage />;
+      case "reports":
+        return <ReportsPage />;
+      case "settings":
+        return <SettingsPage />;
+      case "dashboard":
+      default:
+        return <DashboardPage />;
+    }
+  };
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
-
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+    <AppShell activePage={activePage} onNavigate={setActivePage}>
+      {renderPage()}
+    </AppShell>
   );
 }
 

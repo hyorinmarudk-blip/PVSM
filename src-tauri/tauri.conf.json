@@ -12,9 +12,12 @@
   "app": {
     "windows": [
       {
-        "title": "pvsm",
-        "width": 800,
-        "height": 600
+        "title": "Poteau Valley Services Manager",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 1000,
+        "minHeight": 650,
+        "resizable": true
       }
     ],
     "security": {
