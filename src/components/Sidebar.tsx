@@ -1,4 +1,18 @@
 import type { AppPage } from "../App";
+import { useBusiness } from "../context/BusinessContext";
+
+import {
+  useBranding,
+} from "../context/BrandingContext";
+
+import {
+  loadBrandImage,
+} from "../services/brandingService";
+
+import {
+  useEffect,
+  useState,
+} from "react";
 
 interface SidebarProps {
   activePage: AppPage;
@@ -19,13 +33,53 @@ function Sidebar({
   activePage,
   onNavigate,
 }: SidebarProps) {
+  const { profile } = useBusiness();
+
+  const { branding } =
+  useBranding();
+
+const [logo, setLogo] =
+  useState<string | null>(null);
+
+  const businessName =
+    profile?.business_name?.trim() || "PVSM";
+
+    useEffect(() => {
+  if (!branding?.logo_path) {
+    setLogo(null);
+    return;
+  }
+
+  loadBrandImage(
+    branding.logo_path,
+  )
+    .then((image) => {
+      setLogo(
+        image.data_url,
+      );
+    })
+    .catch(() => {
+      setLogo(null);
+    });
+}, [branding?.logo_path]);
+
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
-        <div className="brand-mark">PV</div>
+        <div className="brand-mark">
+  {logo ? (
+    <img
+      src={logo}
+      alt=""
+      className="sidebar-logo"
+    />
+  ) : (
+    "PV"
+  )}
+</div>
 
         <div>
-          <div className="brand-title">PVSM</div>
+          <div className="brand-title">{businessName}</div>
           <div className="brand-subtitle">Version 6</div>
         </div>
       </div>

@@ -1,19 +1,37 @@
+import { useBusiness } from "../context/BusinessContext";
+
 function TopBar() {
+  const {
+    profile,
+    loading,
+    error,
+  } = useBusiness();
+
+  const businessName =
+    profile?.business_name.trim() ||
+    "Poteau Valley Services Manager";
+
+
   return (
     <header className="top-bar">
       <div>
-        <div className="top-bar-title">
-          Poteau Valley Services Manager
+        <div className="brand-title">
+            {businessName}
         </div>
 
         <div className="top-bar-subtitle">
-          PVSM 6 Development
+          PVSM 6
         </div>
       </div>
 
       <div className="top-bar-status">
         <span className="status-dot" />
-        Ready
+
+        {loading
+          ? "Loading"
+          : error
+            ? "Configuration Error"
+            : "Ready"}
       </div>
     </header>
   );

@@ -7,7 +7,7 @@ import SchedulingPage from "./pages/SchedulingPage";
 import PartsPage from "./pages/PartsPage";
 import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
-import "./styles/app.css";
+import "./styles/App.css";
 
 export type AppPage =
   | "dashboard"
