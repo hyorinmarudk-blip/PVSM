@@ -73,3 +73,16 @@ pub struct PaymentMethod {
     pub active: bool,
     pub sort_order: i64,
 }
+
+#[derive(
+    Debug,
+    Clone,
+    Serialize,
+    Deserialize,
+)]
+pub struct FrontendLogPayload {
+    pub level: String,
+    pub message: String,
+    pub context: Option<String>,
+    pub details: Option<String>,
+}

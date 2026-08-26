@@ -11,6 +11,12 @@ import {
 import AppErrorBoundary
   from "./components/AppErrorBoundary";
 
+import {
+  initializeGlobalErrorCapture,
+} from "./services/globalErrorCapture";
+
+initializeGlobalErrorCapture();
+
 ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
 ).render(

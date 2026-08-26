@@ -16,6 +16,7 @@ function DashboardPage() {
   const [error, setError] =
     useState<string | null>(null);
 
+
   useEffect(() => {
     invoke<DatabaseHealth>("database_health")
       .then(setDatabase)

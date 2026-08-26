@@ -6,7 +6,7 @@ mod logging;
 use database::{
     models::{
         BrandImage, BrandingSettings, BusinessConfiguration, BusinessProfile, DatabaseHealth,
-        PaymentMethod,
+        PaymentMethod, FrontendLogPayload,
     },
     Database,
 };
@@ -94,6 +94,70 @@ async fn delete_brand_image(path: String) -> Result<(), String> {
     branding::delete_brand_image(path)
 }
 
+#[tauri::command]
+async fn write_frontend_log(
+    payload: FrontendLogPayload,
+) -> Result<(), String> {
+    match payload.level
+        .trim()
+        .to_lowercase()
+        .as_str()
+    {
+        "warn" => {
+            tracing::warn!(
+                context =
+                    payload
+                        .context
+                        .as_deref()
+                        .unwrap_or("frontend"),
+                details =
+                    payload
+                        .details
+                        .as_deref()
+                        .unwrap_or(""),
+                "{}",
+                payload.message
+            );
+        }
+
+        "info" => {
+            tracing::info!(
+                context =
+                    payload
+                        .context
+                        .as_deref()
+                        .unwrap_or("frontend"),
+                details =
+                    payload
+                        .details
+                        .as_deref()
+                        .unwrap_or(""),
+                "{}",
+                payload.message
+            );
+        }
+
+        _ => {
+            tracing::error!(
+                context =
+                    payload
+                        .context
+                        .as_deref()
+                        .unwrap_or("frontend"),
+                details =
+                    payload
+                        .details
+                        .as_deref()
+                        .unwrap_or(""),
+                "{}",
+                payload.message
+            );
+        }
+    }
+
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -155,6 +219,7 @@ pub fn run() {
     Ok(())
 })
         .invoke_handler(tauri::generate_handler![
+            write_frontend_log,
             database_health,
             get_business_profile,
             save_business_profile,
