@@ -3,28 +3,16 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use base64::{
-    engine::general_purpose::STANDARD,
-    Engine,
-};
+use base64::{engine::general_purpose::STANDARD, Engine};
 
 use crate::database::models::BrandImage;
 
-const ALLOWED_EXTENSIONS: [&str; 5] = [
-    "png",
-    "jpg",
-    "jpeg",
-    "webp",
-    "gif",
-];
+const ALLOWED_EXTENSIONS: [&str; 5] = ["png", "jpg", "jpeg", "webp", "gif"];
 
 fn validate_kind(kind: &str) -> Result<(), String> {
     match kind {
         "logo" | "header" => Ok(()),
-        _ => Err(
-            "Brand image type must be logo or header."
-                .to_string(),
-        ),
+        _ => Err("Brand image type must be logo or header.".to_string()),
     }
 }
 
@@ -43,13 +31,8 @@ fn validate_image(path: &Path) -> Result<String, String> {
         .unwrap_or("")
         .to_lowercase();
 
-    if !ALLOWED_EXTENSIONS.contains(
-        &extension.as_str(),
-    ) {
-        return Err(
-            "Supported image formats are PNG, JPG, JPEG, WEBP, and GIF."
-                .into(),
-        );
+    if !ALLOWED_EXTENSIONS.contains(&extension.as_str()) {
+        return Err("Supported image formats are PNG, JPG, JPEG, WEBP, and GIF.".into());
     }
 
     Ok(extension)
@@ -74,90 +57,44 @@ pub fn import_brand_image(
 
     let source = PathBuf::from(source_path);
 
-    let extension =
-        validate_image(&source)?;
+    let extension = validate_image(&source)?;
 
-    let branding_dir =
-        app_data_dir.join("branding");
+    let branding_dir = app_data_dir.join("branding");
 
     fs::create_dir_all(&branding_dir)
-        .map_err(|error| {
-            format!(
-                "Unable to create branding directory: {error}"
-            )
-        })?;
+        .map_err(|error| format!("Unable to create branding directory: {error}"))?;
 
-    let filename = format!(
-        "{kind}.{extension}"
-    );
+    let filename = format!("{kind}.{extension}");
 
-    let destination =
-        branding_dir.join(filename);
+    let destination = branding_dir.join(filename);
 
-    fs::copy(
-        &source,
-        &destination,
-    )
-    .map_err(|error| {
-        format!(
-            "Unable to copy branding image: {error}"
-        )
-    })?;
+    fs::copy(&source, &destination)
+        .map_err(|error| format!("Unable to copy branding image: {error}"))?;
 
-    load_brand_image(
-        destination
-            .to_string_lossy()
-            .to_string(),
-    )
+    load_brand_image(destination.to_string_lossy().to_string())
 }
 
-pub fn load_brand_image(
-    path: String,
-) -> Result<BrandImage, String> {
-    let image_path =
-        PathBuf::from(&path);
+pub fn load_brand_image(path: String) -> Result<BrandImage, String> {
+    let image_path = PathBuf::from(&path);
 
-    let extension =
-        validate_image(&image_path)?;
+    let extension = validate_image(&image_path)?;
 
     let bytes =
-        fs::read(&image_path)
-            .map_err(|error| {
-                format!(
-                    "Unable to read branding image: {error}"
-                )
-            })?;
+        fs::read(&image_path).map_err(|error| format!("Unable to read branding image: {error}"))?;
 
-    let encoded =
-        STANDARD.encode(bytes);
+    let encoded = STANDARD.encode(bytes);
 
-    let data_url = format!(
-        "data:{};base64,{}",
-        mime_type(&extension),
-        encoded,
-    );
+    let data_url = format!("data:{};base64,{}", mime_type(&extension), encoded,);
 
-    Ok(BrandImage {
-        path,
-        data_url,
-    })
+    Ok(BrandImage { path, data_url })
 }
 
-pub fn delete_brand_image(
-    path: String,
-) -> Result<(), String> {
-    let image_path =
-        PathBuf::from(path);
+pub fn delete_brand_image(path: String) -> Result<(), String> {
+    let image_path = PathBuf::from(path);
 
     if image_path.exists() {
-        fs::remove_file(
-            image_path,
-        )
-        .map_err(|error| {
-            format!(
-                "Unable to remove branding image: {error}"
-            )
-        })?;
+        fs::remove_file(image_path)
+            .map_err(|error| format!("Unable to remove branding image: {error}"))?;
     }
 
     Ok(())

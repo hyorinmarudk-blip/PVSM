@@ -29,3 +29,6 @@ chrono = { version = "0.4.45", features = ["serde"] }
 tauri-plugin-dialog = "2"
 base64 = "0.23.1"
 
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-window-state = "2"
+

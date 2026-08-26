@@ -1,6 +1,22 @@
-import { useBusiness } from "../context/BusinessContext";
+import type {
+  AppPage,
+} from "../App";
 
-function TopBar() {
+import {
+  useBusiness,
+} from "../context/BusinessContext";
+
+import {
+  pageMetadata,
+} from "../types/navigation";
+
+interface TopBarProps {
+  activePage: AppPage;
+}
+
+function TopBar({
+  activePage,
+}: TopBarProps) {
   const {
     profile,
     loading,
@@ -8,19 +24,25 @@ function TopBar() {
   } = useBusiness();
 
   const businessName =
-    profile?.business_name.trim() ||
+    profile?.business_name?.trim() ||
     "Poteau Valley Services Manager";
 
+  const page =
+    pageMetadata[activePage];
 
   return (
     <header className="top-bar">
       <div>
-        <div className="brand-title">
-            {businessName}
+        <div className="top-bar-business">
+          {businessName}
+        </div>
+
+        <div className="top-bar-title">
+          {page.title}
         </div>
 
         <div className="top-bar-subtitle">
-          PVSM 6
+          {page.description}
         </div>
       </div>
 

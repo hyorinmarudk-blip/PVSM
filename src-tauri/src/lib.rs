@@ -1,10 +1,11 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-mod database;
 mod branding;
+mod database;
 
 use database::{
     models::{
-        BrandingSettings, BusinessConfiguration, BusinessProfile, DatabaseHealth, PaymentMethod, BrandImage,
+        BrandImage, BrandingSettings, BusinessConfiguration, BusinessProfile, DatabaseHealth,
+        PaymentMethod,
     },
     Database,
 };
@@ -74,43 +75,28 @@ async fn import_brand_image(
 ) -> Result<BrandImage, String> {
     use tauri::Manager;
 
-    let app_data_dir =
-        app.path()
-            .app_data_dir()
-            .map_err(|error| {
-                format!(
-                    "Unable to resolve PVSM app data directory: {error}"
-                )
-            })?;
+    let app_data_dir = app
+        .path()
+        .app_data_dir()
+        .map_err(|error| format!("Unable to resolve PVSM app data directory: {error}"))?;
 
-    branding::import_brand_image(
-        app_data_dir,
-        source_path,
-        kind,
-    )
+    branding::import_brand_image(app_data_dir, source_path, kind)
 }
 
 #[tauri::command]
-async fn load_brand_image(
-    path: String,
-) -> Result<BrandImage, String> {
-    branding::load_brand_image(
-        path,
-    )
+async fn load_brand_image(path: String) -> Result<BrandImage, String> {
+    branding::load_brand_image(path)
 }
 
 #[tauri::command]
-async fn delete_brand_image(
-    path: String,
-) -> Result<(), String> {
-    branding::delete_brand_image(
-        path,
-    )
+async fn delete_brand_image(path: String) -> Result<(), String> {
+    branding::delete_brand_image(path)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {

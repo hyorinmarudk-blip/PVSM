@@ -19,7 +19,7 @@ function AppShell({
       <Sidebar activePage={activePage} onNavigate={onNavigate} />
 
       <div className="app-main">
-        <TopBar />
+        <TopBar activePage={activePage} />
 
         <main className="content-area">
           {children}
