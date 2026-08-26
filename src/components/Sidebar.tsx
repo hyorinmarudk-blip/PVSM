@@ -7,11 +7,11 @@ import type { AppPage } from "../App";
 
 import {
   useBusiness,
-} from "../context/BusinessContext";
+} from "../Context/BusinessContext";
 
 import {
   useBranding,
-} from "../context/BrandingContext";
+} from "../Context/BrandingContext";
 
 import {
   loadBrandImage,

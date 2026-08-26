@@ -487,3 +487,58 @@ button {
   height: 100%;
   object-fit: fill;
 }
+
+.fatal-error-screen {
+  display: grid;
+  place-items: center;
+
+  width: 100%;
+  min-height: 100vh;
+
+  padding: 32px;
+
+  background: var(--app-background);
+}
+
+.fatal-error-card {
+  width: min(520px, 100%);
+
+  padding: 32px;
+
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+
+  background: var(--surface);
+
+  color: var(--text-primary);
+
+  text-align: center;
+}
+
+.fatal-error-code {
+  display: inline-grid;
+  place-items: center;
+
+  width: 52px;
+  height: 52px;
+
+  margin-bottom: 12px;
+
+  border-radius: 12px;
+
+  background: var(--brand-accent);
+
+  color: #ffffff;
+
+  font-weight: 900;
+}
+
+.fatal-error-detail {
+  margin: 18px 0;
+
+  color: var(--text-secondary);
+
+  font-size: 13px;
+
+  word-break: break-word;
+}

@@ -23,6 +23,12 @@ pub struct Database {
 
 impl Database {
     pub async fn initialize(app_data_dir: PathBuf) -> Result<Self, String> {
+
+       tracing::info!(
+    path = %app_data_dir.display(),
+    "Initializing PVSM database"
+);
+
         std::fs::create_dir_all(&app_data_dir)
             .map_err(|error| format!("Unable to create PVSM data directory: {error}"))?;
 
@@ -37,6 +43,10 @@ impl Database {
             .await
             .map_err(|error| format!("Database migration failed: {error}"))?;
 
+        tracing::info!(
+    "Database migrations completed"
+);
+
         Self::seed_foundation(&pool)
             .await
             .map_err(|error| format!("Database initialization failed: {error}"))?;
@@ -45,8 +55,13 @@ impl Database {
             .await
             .map_err(|error| format!("Unable to sync schema version: {error}"))?;
 
+        tracing::info!(
+    "Database schema version synchronized"
+);
+
         Ok(Self { pool, path })
     }
+    
 
     async fn seed_foundation(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         let now = Utc::now().to_rfc3339();
@@ -168,6 +183,7 @@ impl Database {
 
     pub async fn business_profile(&self) -> Result<BusinessProfile, String> {
         use sqlx::Row;
+
 
         let row = sqlx::query(
             r#"

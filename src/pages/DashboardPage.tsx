@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 
+
 interface DatabaseHealth {
   connected: boolean;
   database_path: string;

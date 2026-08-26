@@ -1,6 +1,7 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 mod branding;
 mod database;
+mod logging;
 
 use database::{
     models::{
@@ -100,24 +101,59 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
-            let app_handle = app.handle().clone();
+    use tauri::Manager;
 
-            tauri::async_runtime::block_on(async move {
-                use tauri::Manager;
-
-                let app_data_dir = app_handle.path().app_data_dir().map_err(|error| {
-                    format!("Unable to resolve PVSM app data directory: {error}")
-                })?;
-
-                let database = Database::initialize(app_data_dir).await?;
-
-                app_handle.manage(database);
-
-                Ok::<(), String>(())
+    let app_data_dir =
+        app.path()
+            .app_data_dir()
+            .map_err(|error| {
+                format!(
+                    "Unable to resolve PVSM app data directory: {error}"
+                )
             })?;
 
-            Ok(())
-        })
+    let logging_guard =
+        logging::initialize(
+            app_data_dir.clone(),
+        )?;
+
+    app.manage(logging_guard);
+
+    tracing::info!(
+        "PVSM 6 startup beginning"
+    );
+
+    let app_handle =
+        app.handle().clone();
+
+    tauri::async_runtime::block_on(
+        async move {
+            let database =
+                Database::initialize(
+                    app_data_dir,
+                )
+                .await
+                .map_err(|error| {
+                    tracing::error!(
+                        error = %error,
+                        "Database initialization failed"
+                    );
+
+                    error
+                })?;
+
+            app_handle.manage(database);
+
+            tracing::info!(
+                "PVSM database initialized successfully"
+            );
+
+            Ok::<(), String>(())
+        },
+    )?;
+
+    Ok(())
+})
         .invoke_handler(tauri::generate_handler![
             database_health,
             get_business_profile,
@@ -133,4 +169,4 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running PVSM");
-}
+    }

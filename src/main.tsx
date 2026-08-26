@@ -2,20 +2,23 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 
 import App from "./App";
-import { BusinessProvider } from "./context/BusinessContext";
+import { BusinessProvider } from "./Context/BusinessContext";
 
 import {
   BrandingProvider,
-} from "./context/BrandingContext";
+} from "./Context/BrandingContext";
+
+import AppErrorBoundary
+  from "./components/AppErrorBoundary";
 
 ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
 ).render(
-  <React.StrictMode>
-    <BusinessProvider>
-      <BrandingProvider>
-        <App />
-      </BrandingProvider>
-    </BusinessProvider>
-  </React.StrictMode>,
+<AppErrorBoundary>
+  <BusinessProvider>
+    <BrandingProvider>
+      <App />
+    </BrandingProvider>
+  </BusinessProvider>
+</AppErrorBoundary>
 );

@@ -4,7 +4,7 @@ import type {
 
 import {
   useBusiness,
-} from "../context/BusinessContext";
+} from "../Context/BusinessContext";
 
 import {
   pageMetadata,

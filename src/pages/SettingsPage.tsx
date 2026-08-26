@@ -10,9 +10,9 @@ import type {
   BusinessProfile,
 } from "../types/business";
 
-import { useBusiness } from "../context/BusinessContext";
+import { useBusiness } from "../Context/BusinessContext";
 
-import { useBranding } from "../context/BrandingContext";
+import { useBranding } from "../Context/BrandingContext";
 
 import {
   saveBrandingSettings,
