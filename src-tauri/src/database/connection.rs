@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::{Path};
 
 use sqlx::{
     sqlite::{SqliteConnectOptions, SqlitePoolOptions},
@@ -15,8 +15,4 @@ pub async fn create_pool(database_path: &Path) -> Result<SqlitePool, sqlx::Error
         .max_connections(5)
         .connect_with(options)
         .await
-}
-
-pub fn database_file(app_data_dir: PathBuf) -> PathBuf {
-    app_data_dir.join("pvsm.db")
 }

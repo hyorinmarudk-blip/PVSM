@@ -86,3 +86,42 @@ pub struct FrontendLogPayload {
     pub context: Option<String>,
     pub details: Option<String>,
 }
+
+#[derive(
+    Debug,
+    Clone,
+    Serialize,
+    Deserialize,
+)]
+pub struct BackupRecord {
+    pub uuid: String,
+
+    pub filename: String,
+    pub path: String,
+
+    pub backup_type: String,
+
+    pub created_at: String,
+
+    pub file_size: i64,
+    pub schema_version: i64,
+
+    pub integrity_status: String,
+
+    pub notes: String,
+}
+
+#[derive(
+    Debug,
+    Clone,
+    Serialize,
+    Deserialize,
+)]
+pub struct StorageInfo {
+    pub app_data_path: String,
+    pub database_path: String,
+    pub backup_path: String,
+    pub branding_path: String,
+    pub export_path: String,
+    pub log_path: String,
+}

@@ -2,11 +2,14 @@
 mod branding;
 mod database;
 mod logging;
+mod storage;
+mod backup;
+
 
 use database::{
     models::{
         BrandImage, BrandingSettings, BusinessConfiguration, BusinessProfile, DatabaseHealth,
-        PaymentMethod, FrontendLogPayload,
+        PaymentMethod, FrontendLogPayload, BackupRecord, StorageInfo,
     },
     Database,
 };
@@ -95,6 +98,77 @@ async fn delete_brand_image(path: String) -> Result<(), String> {
 }
 
 #[tauri::command]
+async fn create_manual_backup(
+    database:
+        tauri::State<'_, Database>,
+
+    paths:
+        tauri::State<'_, storage::AppPaths>,
+) -> Result<BackupRecord, String> {
+    backup::create_backup(
+        database.pool(),
+        &paths,
+        "manual",
+        "Manual backup",
+    )
+    .await
+}
+
+#[tauri::command]
+async fn get_backup_history(
+    database:
+        tauri::State<'_, Database>,
+) -> Result<
+    Vec<BackupRecord>,
+    String,
+> {
+    backup::list_backups(
+        database.pool(),
+    )
+    .await
+}
+
+#[tauri::command]
+async fn get_storage_info(
+    paths:
+        tauri::State<'_, storage::AppPaths>,
+) -> Result<StorageInfo, String> {
+    Ok(
+        StorageInfo {
+            app_data_path:
+                paths.root
+                    .display()
+                    .to_string(),
+
+            database_path:
+                paths.database
+                    .display()
+                    .to_string(),
+
+            backup_path:
+                paths.backups
+                    .display()
+                    .to_string(),
+
+            branding_path:
+                paths.branding
+                    .display()
+                    .to_string(),
+
+            export_path:
+                paths.exports
+                    .display()
+                    .to_string(),
+
+            log_path:
+                paths.logs
+                    .display()
+                    .to_string(),
+        },
+    )
+}
+
+#[tauri::command]
 async fn write_frontend_log(
     payload: FrontendLogPayload,
 ) -> Result<(), String> {
@@ -167,6 +241,7 @@ pub fn run() {
         .setup(|app| {
     use tauri::Manager;
 
+
     let app_data_dir =
         app.path()
             .app_data_dir()
@@ -176,9 +251,15 @@ pub fn run() {
                 )
             })?;
 
+
+            let paths =
+    storage::AppPaths::initialize(
+        app_data_dir,
+    )?;
+
     let logging_guard =
         logging::initialize(
-            app_data_dir.clone(),
+paths.root.clone(),
         )?;
 
     app.manage(logging_guard);
@@ -194,7 +275,7 @@ pub fn run() {
         async move {
             let database =
                 Database::initialize(
-                    app_data_dir,
+                    paths.database.clone(),
                 )
                 .await
                 .map_err(|error| {
@@ -205,7 +286,7 @@ pub fn run() {
 
                     error
                 })?;
-
+            app.manage(paths);    
             app_handle.manage(database);
 
             tracing::info!(
@@ -230,6 +311,9 @@ pub fn run() {
             save_branding_settings,
             import_brand_image,
             load_brand_image,
+            create_manual_backup,
+            get_backup_history,
+            get_storage_info,
             delete_brand_image
         ])
         .run(tauri::generate_context!())

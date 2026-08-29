@@ -7,7 +7,7 @@ use chrono::Utc;
 use sqlx::{Row, SqlitePool};
 use uuid::Uuid;
 
-use connection::{create_pool, database_file};
+use connection::{create_pool};
 
 use models::{
     BrandingSettings, BusinessConfiguration, BusinessProfile, DatabaseHealth, PaymentMethod,
@@ -22,21 +22,17 @@ pub struct Database {
 }
 
 impl Database {
-    pub async fn initialize(app_data_dir: PathBuf) -> Result<Self, String> {
+    pub async fn initialize(database_path: PathBuf) -> Result<Self, String> {
+    let path = database_path;
 
-       tracing::info!(
-    path = %app_data_dir.display(),
-    "Initializing PVSM database"
-);
+    tracing::info!(
+        path = %path.display(),
+        "Initializing PVSM database"
+    );
 
-        std::fs::create_dir_all(&app_data_dir)
-            .map_err(|error| format!("Unable to create PVSM data directory: {error}"))?;
-
-        let path = database_file(app_data_dir);
-
-        let pool = create_pool(&path)
-            .await
-            .map_err(|error| format!("Unable to open PVSM database: {error}"))?;
+    let pool = create_pool(&path)
+        .await
+        .map_err(|error| format!("Unable to open PVSM database: {error}"))?;
 
         MIGRATOR
             .run(&pool)
@@ -61,6 +57,13 @@ impl Database {
 
         Ok(Self { pool, path })
     }
+
+
+    pub fn pool(
+    &self,
+) -> &SqlitePool {
+    &self.pool
+}
     
 
     async fn seed_foundation(pool: &SqlitePool) -> Result<(), sqlx::Error> {

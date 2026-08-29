@@ -27,7 +27,89 @@ import type {
 
 import { open } from "@tauri-apps/plugin-dialog";
 
+import {
+  createManualBackup,
+  getBackupHistory,
+  getStorageInfo,
+} from "../services/backupService";
+
+import type {
+  BackupRecord,
+  StorageInfo,
+} from "../types/backup";
+
 function SettingsPage() {
+
+ const [
+  storageInfo,
+  setStorageInfo,
+] =
+  useState<StorageInfo | null>(
+    null,
+  );
+
+const [
+  backups,
+  setBackups,
+] =
+  useState<BackupRecord[]>([]);
+
+const [
+  backupStatus,
+  setBackupStatus,
+] =
+  useState("");
+
+
+  useEffect(() => {
+  Promise.all([
+    getStorageInfo(),
+    getBackupHistory(),
+  ])
+    .then(
+      ([
+        storage,
+        history,
+      ]) => {
+        setStorageInfo(storage);
+        setBackups(history);
+      },
+    )
+    .catch((error) => {
+      setBackupStatus(
+        `Unable to load backup information: ${error}`,
+      );
+    });
+}, []);
+
+
+const runBackup =
+  async () => {
+    setBackupStatus(
+      "Creating backup...",
+    );
+
+    try {
+      const backup =
+        await createManualBackup();
+
+      setBackups(
+        (current) => [
+          backup,
+          ...current,
+        ],
+      );
+
+      setBackupStatus(
+        `Backup created: ${backup.filename}`,
+      );
+    } catch (error) {
+      setBackupStatus(
+        `Backup failed: ${error}`,
+      );
+    }
+  };
+
   const {
     profile: globalProfile,
     configuration: globalConfiguration,
@@ -484,6 +566,94 @@ function SettingsPage() {
             </label>
           </div>
         </div>
+
+
+        <div className="panel">
+  <h2>Backup & Storage</h2>
+
+  {storageInfo && (
+    <div className="storage-info">
+      <p>
+        <strong>
+          Database
+        </strong>
+        <br />
+        {storageInfo.database_path}
+      </p>
+
+      <p>
+        <strong>
+          Backup Folder
+        </strong>
+        <br />
+        {storageInfo.backup_path}
+      </p>
+    </div>
+  )}
+
+  <button
+    type="button"
+    className="primary-button"
+    onClick={runBackup}
+  >
+    Create Backup
+  </button>
+
+  {backupStatus && (
+    <p>
+      {backupStatus}
+    </p>
+  )}
+
+  <div className="backup-history">
+    <h3>
+      Recent Backups
+    </h3>
+
+    {backups.length === 0 ? (
+      <p>
+        No backups yet.
+      </p>
+    ) : (
+      backups
+        .slice(0, 10)
+        .map(
+          (backup) => (
+            <div
+              className="backup-row"
+              key={backup.uuid}
+            >
+              <div>
+                <strong>
+                  {backup.filename}
+                </strong>
+
+                <div>
+                  Schema{" "}
+                  {
+                    backup.schema_version
+                  }{" "}
+                  •{" "}
+                  {
+                    backup.integrity_status
+                  }
+                </div>
+              </div>
+
+              <span>
+                {(
+                  backup.file_size /
+                  1024 /
+                  1024
+                ).toFixed(2)}
+                {" MB"}
+              </span>
+            </div>
+          ),
+        )
+    )}
+  </div>
+</div>
 
         {branding && (
   <div className="panel">

@@ -542,3 +542,43 @@ button {
 
   word-break: break-word;
 }
+
+.storage-info {
+  margin-bottom: 16px;
+
+  color: var(--text-secondary);
+
+  font-size: 12px;
+
+  word-break: break-all;
+}
+
+.backup-history {
+  margin-top: 22px;
+}
+
+.backup-row {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  padding: 10px 0;
+
+  border-bottom:
+    1px solid var(--border-color);
+}
+
+.backup-row:last-child {
+  border-bottom: 0;
+}
+
+.backup-row div div {
+  margin-top: 3px;
+
+  color: var(--text-secondary);
+
+  font-size: 11px;
+}
